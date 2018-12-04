@@ -98,8 +98,7 @@ ENV JAVA_HOME=/opt/java/openjdk \
     SQ_TEMP_DIR="/opt/sonarqube/temp"
 
 RUN set -eux; \
-    addgroup -S -g 1000 sonarqube; \
-    adduser -S -D -u 1000 -G sonarqube sonarqube; \
+    adduser -S -D -u 1000 -G root sonarqube; \
     apk add --no-cache --virtual build-dependencies gnupg unzip curl; \
     apk add --no-cache bash su-exec ttf-dejavu; \
     # pub   2048R/D26468DE 2015-05-25
@@ -124,12 +123,14 @@ RUN set -eux; \
     mv "sonarqube-${SONARQUBE_VERSION}" sonarqube; \
     rm sonarqube.zip*; \
     rm -rf ${SONARQUBE_HOME}/bin/*; \
-    chown -R sonarqube:sonarqube ${SONARQUBE_HOME}; \
+    chown -R sonarqube:root ${SONARQUBE_HOME}; \
     # this 777 will be replaced by 700 at runtime (allows semi-arbitrary "--user" values)
     chmod -R 777 "${SQ_DATA_DIR}" "${SQ_EXTENSIONS_DIR}" "${SQ_LOGS_DIR}" "${SQ_TEMP_DIR}"; \
     apk del --purge build-dependencies;
 
-COPY --chown=sonarqube:sonarqube run.sh sonar.sh ${SONARQUBE_HOME}/bin/
+COPY --chown=sonarqube:root run.sh sonar.sh ${SONARQUBE_HOME}/bin/
+
+VOLUME ["/tmp", "$SONARQUBE_HOME/data", "$SONARQUBE_HOME/extensions", "$SONARQUBE_HOME/logs", "$SONARQUBE_HOME/temp"]
 
 WORKDIR ${SONARQUBE_HOME}
 EXPOSE 9000
