@@ -119,6 +119,8 @@ RUN set -ex \
     && gpg --batch --verify sonarqube.zip.asc sonarqube.zip \
     && unzip -q sonarqube.zip \
     && mv "sonarqube-${SONARQUBE_VERSION}" sonarqube \
+    && rm sonarqube/lib/jdbc/postgresql/postgresql-*.jar \
+    && curl --fail --location --output sonarqube/lib/jdbc/postgresql/postgresql-42.2.19.jar "https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.19/postgresql-42.2.19.jar" \
     && rm sonarqube.zip* \
     && rm -rf ${SONARQUBE_HOME}/bin/* \
     && chown -R sonarqube:root ${SONARQUBE_HOME} \
